@@ -12,9 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('blogs', function (Blueprint $table) {
-            // $table->unsignedBigInteger('user_id');
-            // $table->foreign('user_id')->references('id')->on('users');
-            $table->foreignId('user_id')->constrained();
+            $table->softDeletes();
         });
     }
 
@@ -24,8 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('blogs', function (Blueprint $table) {
-            $table->dropForeign('blogs_user_id_foreign');
-            $table->dropColumn('user_id');
+            $table->dropSoftDeletes();
         });
     }
 };

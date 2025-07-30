@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use Faker\Factory;
 use App\Models\Blog;
-use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
+use App\Models\Phone;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,7 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::factory(10)->create();
 
         // User::factory()->create([
         //     'name' => 'Test User',
@@ -27,5 +29,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Blog::factory(100)->create();
+        // Phone::truncate();
+        Phone::factory(50)->create();
     }
 }
