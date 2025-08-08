@@ -38,6 +38,15 @@
                     class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create</a>
                 <a href="{{ route('blogs.trash') }}"
                     class="text-white bg-yellow-700 hover:bg-yellow-800 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-yellow-600 dark:hover:bg-yellow-700 focus:outline-none dark:focus:ring-yellow-800">Restore</a>
+                <a href="{{ route('comment.index') }}"
+                    class="text-white bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-orange-600 dark:hover:bg-orange-700 focus:outline-none dark:focus:ring-orange-800">Manage
+                    Comment</a>
+                <a href="{{ route('tags.index') }}"
+                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">Manage
+                    Manage Tags</a>
+                <a href="{{ route('logout') }}"
+                    class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800">
+                    Logout</a>
             </div>
         </div>
         @if (session('success'))
@@ -56,6 +65,7 @@
                     <tr>
                         <th class="px-6 py-4 font-medium text-gray-900">No</th>
                         <th class="px-6 py-4 font-medium text-gray-900">Title</th>
+                        <th class="px-6 py-4 font-medium text-gray-900">Tags</th>
                         <th class="px-6 py-4 font-medium text-gray-900">Status</th>
                         <th class="w-1/6 px-6 py-4 font-medium text-gray-900">Action</th>
                     </tr>
@@ -74,6 +84,11 @@
                             <td class="px-6 py-4">
                                 {{ ($blogss->currentpage() - 1) * $blogss->perpage() + $loop->iteration }}</td>
                             <td class="px-6 py-4">{{ $blog->title }}</td>
+                            <td class="px-6 py-4">
+                                @foreach ($blog->tags as $tag)
+                                    {{ $tag->name }}
+                                @endforeach
+                            </td>
                             <td class="px-6 py-4">
                                 @if ($blog->status == 'Active')
                                     <span

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tag;
 use App\Models\Blog;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class BlogController extends Controller
@@ -17,13 +19,17 @@ class BlogController extends Controller
         // $blogs = DB::table('blogs')->where('title', 'LIKE', '%' . $title . '%')->orderBy('created_at', 'desc')->paginate(10);
 
         // Eloquent ORM
-        $blogs = Blog::where('title', 'LIKE', '%' . $title . '%')->orderBy('created_at', 'desc')->paginate(10);
+        $user = Auth::user();
+        $blogs = Blog::with(['tags', 'comments'])->when($user->role !== 'admin', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->where('title', 'LIKE', '%' . $title . '%')->orderBy('created_at', 'desc')->paginate(10);
         return view('blog', ['blogss' => $blogs, 'title' => $title]);
     }
 
     public function create()
     {
-        return view('/blogs/create');
+        $tags = Tag::all();
+        return view('/blogs/create', compact('tags'));
     }
 
     public function store(Request $request)
@@ -44,17 +50,17 @@ class BlogController extends Controller
         //     'updated_at' => now(),
         // ]);
 
-
-        $id_min = User::pluck('id')->min();
-        $id_max = User::pluck('id')->max();
+        $user = Auth::user();
 
         // Eloquent ORM
         $data = Blog::create([
             'title' => $request->title,
             'deskripsi' => $request->description,
             'status' => $request->status,
-            'user_id' => fake()->numberBetween($id_min, $id_max),
+            'user_id' => $user->id,
         ]);
+
+        $data->tags()->attach($request->tags);
 
         if (!$data) {
             return redirect()->route('blog.index')->with('error', 'Blog Failed to Create!');
@@ -82,8 +88,9 @@ class BlogController extends Controller
         // $blog = DB::table('blogs')->where('id', $id)->first();
 
         // Eloquent ORM
-        $blog = Blog::findOrFail($id);
-        return view('blogs/edit', ['blog' => $blog]);
+        $tags = Tag::all();
+        $blog = Blog::with('tags')->findOrFail($id);
+        return view('blogs/edit', ['blog' => $blog, 'tags' => $tags]);
     }
 
     public function update($id, Request $request)
@@ -103,8 +110,7 @@ class BlogController extends Controller
         //     'updated_at' => now()
         // ]);
 
-        $id_min = User::pluck('id')->min();
-        $id_max = User::pluck('id')->max();
+        $user = Auth::user();
 
         // Eloqeunt ORM
         $blog = Blog::findOrFail($id);
@@ -112,8 +118,10 @@ class BlogController extends Controller
             'title' => $request->title,
             'deskripsi' => $request->description,
             'status' => $request->status,
-            'user_id' => fake()->numberBetween($id_min, $id_max),
+            'user_id' => $user->id,
         ]);
+
+        $blog->tags()->sync($request->tags);
 
         return redirect()->route('blog.index')->with('success', 'Blog Edited Succesfully!');
     }
@@ -155,7 +163,7 @@ class BlogController extends Controller
 
     public function detail($id)
     {
-        $blog = Blog::with('user')->findOrFail($id);
+        $blog = Blog::with(['user', 'comments', 'tags'])->findOrFail($id);
         return view('blogs.show', compact('blog'));
     }
 }
