@@ -22,7 +22,7 @@
             </div>
         @endif --}}
 
-        <form action="{{ route('blog.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('blog.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             <div>
                 <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
@@ -47,6 +47,18 @@
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                 </select>
+            </div>
+
+
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Upload
+                    file</label>
+                <input name="image"
+                    class="px-4 py-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                    id="file_input" type="file">
+                @error('image')
+                    <div class="mt-1 p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50">{{ $message }}</div>
+                @enderror
             </div>
 
             <div>

@@ -107,17 +107,21 @@
                                     class="inline-block px-3 py-1 text-green-600 border border-green-600 rounded hover:bg-green-600 hover:text-white transition">
                                     View
                                 </a>
-                                <a href="{{ route('blog.edit', ['id' => $blog->id]) }}"
-                                    class="inline-block px-3 py-1 text-blue-600 border border-blue-600 rounded hover:bg-blue-600 hover:text-white transition">
-                                    Edit
-                                </a>
-                                <form action="{{ route('blogs.delete', ['id' => $blog->id]) }}" method="POST"
-                                    class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" onclick="confirm('Hapus data ini?')"
-                                        class="inline px-3 py-1 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition">Delete</button>
-                                </form>
+                                @can('update', $blog)
+                                    <a href="{{ route('blog.edit', ['id' => $blog->id]) }}"
+                                        class="inline-block px-3 py-1 text-blue-600 border border-blue-600 rounded hover:bg-blue-600 hover:text-white transition">
+                                        Edit
+                                    </a>
+                                @endcan
+                                @can('delete', $blog)
+                                    <form action="{{ route('blogs.delete', ['id' => $blog->id]) }}" method="POST"
+                                        class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" onclick="confirm('Hapus data ini?')"
+                                            class="inline px-3 py-1 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition">Delete</button>
+                                    </form>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach

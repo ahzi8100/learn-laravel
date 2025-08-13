@@ -8,6 +8,7 @@ use App\Http\Controllers\PhoneController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,8 +34,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
         Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
     });
-
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 Route::middleware('guest')->group(function () {
@@ -42,9 +41,19 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'authenticate'])->name('authenticate');
 });
 
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
 
 Route::get('/blogs', [BlogController::class, 'homepage'])->name('blogs.homepage');
 Route::get('/blogs/{id}', [BlogController::class, 'detail'])->name('blogs.detail');
+
+Route::get('/upload', function () {
+    return Storage::disk('public')->put('example2.txt', 'ini konten example.txt');
+});
+
+Route::get('/file-uploaded', function () {
+    return asset('storage/example2.txt');
+});
 
 
 // Route::resource('blog', BlogController::class);

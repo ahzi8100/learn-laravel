@@ -33,6 +33,10 @@
             @endforeach
         </p>
 
+        <div>
+            <img src="{{ asset('storage/'.$blog->image) }}" alt="">
+        </div>
+
         <div class="text-gray-700 leading-relaxed mb-8">{{ $blog->deskripsi }}</div>
 
         <hr class="my-6">

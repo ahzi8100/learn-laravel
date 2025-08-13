@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\LoginMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -21,6 +23,8 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
+            Mail::to($request->user())->send(new LoginMail($request->user(), $request->ip(), now()->toDateTimeString(), $request->userAgent()));
 
             return redirect()->intended('admin/blogs');
         }

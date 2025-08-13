@@ -13,7 +13,7 @@
     <div class="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
         <h1 class="text-2xl font-semibold text-gray-700 mb-6">Edit Blog</h1>
 
-        <form action="{{ route('blog.update', ['id' => $blog->id]) }}" method="POST" class="space-y-6">
+        <form action="{{ route('blog.update', ['id' => $blog->id]) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PATCH')
             <div>
@@ -57,6 +57,18 @@
                     @endforeach
                 </ul>
             </div>
+
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Upload
+                    file</label>
+                <input name="image"
+                    class="px-4 py-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                    id="file_input" type="file">
+                @error('image')
+                    <div class="mt-1 p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50">{{ $message }}</div>
+                @enderror
+            </div>
+
             <div>
                 <button type="submit"
                     class="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Save</button>

@@ -6,8 +6,10 @@ use App\Models\Tag;
 use App\Models\Blog;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class BlogController extends Controller
 {
@@ -38,6 +40,7 @@ class BlogController extends Controller
             'title' => 'required|unique:blogs|max:20',
             'description' => 'required',
             'status' => 'required',
+            'image' => 'image|mimes:png,jpg|max:2048'
         ]);
 
         // Query Builder
@@ -52,12 +55,17 @@ class BlogController extends Controller
 
         $user = Auth::user();
 
+        if ($request->file('image')) {
+            $image = Storage::disk('public')->putFile('images', $request->file('image'));
+        }
+
         // Eloquent ORM
         $data = Blog::create([
             'title' => $request->title,
             'deskripsi' => $request->description,
             'status' => $request->status,
             'user_id' => $user->id,
+            'image' => $image,
         ]);
 
         $data->tags()->attach($request->tags);
@@ -90,6 +98,12 @@ class BlogController extends Controller
         // Eloquent ORM
         $tags = Tag::all();
         $blog = Blog::with('tags')->findOrFail($id);
+
+        // if (Gate::denies('update-post', $blog)) {
+        //     // abort(403);
+        //     return redirect()->route('blog.index')->with('error', 'Tidak bisa edit blog punya orang lain');
+        // }
+
         return view('blogs/edit', ['blog' => $blog, 'tags' => $tags]);
     }
 
@@ -98,7 +112,8 @@ class BlogController extends Controller
         $request->validate([
             'title' => 'required|unique:blogs,title,' . $id . '|max:255',
             'description' => 'required',
-            'status' => 'required'
+            'status' => 'required',
+            'image' => 'image|mimes:png,jpg|max:2048',
         ]);
 
         // Query Builder
@@ -114,11 +129,28 @@ class BlogController extends Controller
 
         // Eloqeunt ORM
         $blog = Blog::findOrFail($id);
+
+        // if ($request->user()->cannot('update', $blog)) {
+        //     abort(403);
+        // }
+        Gate::authorize('update', $blog);
+
+        if($request->hasFile('image')) {
+            if($blog->image && Storage::disk('public')->exists($blog->image)) {
+                Storage::disk('public')->delete($blog->image);
+            }
+
+            $image = Storage::disk('public')->putFile('images', $request->file('image'));
+        }
+
+
+
         $blog->update([
             'title' => $request->title,
             'deskripsi' => $request->description,
             'status' => $request->status,
             'user_id' => $user->id,
+            'image' => $image,
         ]);
 
         $blog->tags()->sync($request->tags);
@@ -126,16 +158,29 @@ class BlogController extends Controller
         return redirect()->route('blog.index')->with('success', 'Blog Edited Succesfully!');
     }
 
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
         // $blog = DB::table('blogs')->where('id', $id)->delete();
-        $blog = Blog::destroy($id);
+        $blog = Blog::findOrFail($id);
+
+        $response = Gate::inspect('delete', $blog);
+
+        if ($response->allowed()) {
+            $blog->delete();
+
+            return redirect()->route('blog.index')->with('success', 'Blog Deleted Succesfully!');
+        } else {
+            abort(403, $response->message());
+        }
+
+        // if ($request->user()->cannot('delete', $blog)) {
+        //     abort(403);
+        // }
+        // Gate::authorize('delete', $blog);
 
         if (!$blog) {
             return redirect()->route('blog.index')->with('failed', 'Blog Failed to Delete!');
         }
-
-        return redirect()->route('blog.index')->with('success', 'Blog Deleted Succesfully!');
     }
 
     public function trash()
